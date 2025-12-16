@@ -23,7 +23,7 @@ This beta version focuses on the main driving parts of the game.
     * A basic menu to start and exit the game.
 * **Tire Marks (Skid Marks):** Basic tire marks appear when you use the handbrake.
 
-## 🛠️ Setup and Build (C++)
+## Setup and Build (C++)
 
 The project is written in C++ and needs the **SFML** library for graphics and input.
 
