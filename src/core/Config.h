@@ -15,6 +15,9 @@ namespace Config
     inline constexpr float MIN_Y =             -5600.f;
     inline constexpr float MAX_Y =              410.f;
 
+    inline constexpr int backGroundStartCoordX = 1000;
+    inline constexpr int backGroundStartCoordY = 600;
+
     inline constexpr char FontPath[] =          "../assets/fonts/DejaVuSans-Bold.ttf";
     inline constexpr char CarAssetPath[] =      "../assets/cars/default/DefaultCarTexture.png";
     inline constexpr char BackGroundPath[] =    "../assets/maps/default/backGround2.png";
