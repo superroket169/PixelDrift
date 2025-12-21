@@ -23,7 +23,7 @@ Physics::Gear Physics::CarPhysics::calculateOptGear(float speed) const
 {
     
     for(size_t i = 1; i <= 7; ++i)
-        if(speed < gearMaxes[i] * recommenedGearConstant) return static_cast<Physics::Gear>(i);
+        if(speed < Config::gearMaxes[i] * Config::recommenedGearConstant) return static_cast<Physics::Gear>(i);
 
     return Physics::Gear::Seven;
 }
@@ -32,9 +32,9 @@ float Physics::CarPhysics::computeAcceleration(float speed, Physics::Gear gear, 
 {
     if(throttle)
     {
-        if(gear == Physics::Gear::R) return gearAccels[0];
+        if(gear == Physics::Gear::R) return Config::gearAccels[0];
         int intGear = static_cast<int>(gear);
-        return sigmoid(speed, gearMaxes[intGear] / 3, gearMaxes[1] * gearMaxes[1] / gearMaxes[intGear], gearAccels[intGear], SigmoidKConstant);
+        return sigmoid(speed, Config::gearMaxes[intGear] / 3, Config::gearMaxes[1] * Config::gearMaxes[1] / Config::gearMaxes[intGear], Config::gearAccels[intGear], Config::SigmoidKConstant);
 
         // plan : sigmoid will be simplefied
     }
@@ -43,7 +43,7 @@ float Physics::CarPhysics::computeAcceleration(float speed, Physics::Gear gear, 
 
 float Physics::CarPhysics::computeSteer(float speed, float steeredTime, steerStatus steerDir) const
 {
-    if(steerDir == Physics::steerStatus::Left) return -turnSpeed * pow(speed, turnPowConstant) * steeredTime;
-    if(steerDir == Physics::steerStatus::Right) return turnSpeed * pow(speed, turnPowConstant) * steeredTime;
+    if(steerDir == Physics::steerStatus::Left) return -Config::turnSpeed * pow(speed, Config::turnPowConstant) * steeredTime;
+    if(steerDir == Physics::steerStatus::Right) return Config::turnSpeed * pow(speed, Config::turnPowConstant) * steeredTime;
     return 0.f;
 }
