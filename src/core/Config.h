@@ -67,6 +67,7 @@ namespace Config
     inline constexpr float maxTurnSpeed =       150;
     inline constexpr float maxRPM =             7000;
     inline constexpr float turnPowConstant =    1.1;
+    inline constexpr float MaxExtraTurnSpeed =  5.5;
 
     inline constexpr float DEG2RAD =            PI / 180;
     inline constexpr float RAD2DEG =            180 / PI;

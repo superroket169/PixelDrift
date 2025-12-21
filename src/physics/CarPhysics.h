@@ -35,8 +35,10 @@ namespace Physics
 
     struct Input
     {
-        float speed;
+        float velocityX;
+        float velocityY;
         float steeredTime;
+        float carAngle;
         steerStatus steerDir;
         bool throttle;     // aralık :  0 -> 1
         bool  handbrake;
@@ -49,10 +51,18 @@ namespace Physics
     {
         float acceleration;
         float angularVelocity;
+        float dirMultiplerX;
+        float dirMultiplerY;
         bool  slip;
         // planed : bool  rearSlip;
         // planed : float slipAmount;
         Gear  recommendedGear;
+    };
+
+    struct vectorVelocity
+    {
+        float DirX;
+        float DirY;
     };
 
     class CarPhysics
@@ -61,9 +71,13 @@ namespace Physics
         Output update(const Input& input, float dt);
 
     private:
+        static float dampingMultiplier;
+        
         Gear calculateOptGear(float speed) const;
-        float computeAcceleration(float speed, Gear gear, bool throttle) const;
+        float computeAcceleration(const Input& input, float speed) const;
         float computeSteer(float speed, float steeredTime, steerStatus steerDir) const;
+        float computeSpeed(float velocityX, float velocityY) const;
+        vectorVelocity computeDirVelocity(float accel, float carAngle) const;
     };
 }
 
