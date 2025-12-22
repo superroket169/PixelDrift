@@ -44,8 +44,8 @@ float Physics::CarPhysics::computeAcceleration(const Physics::Input& input, floa
     }
     
     float velAngleDeg = std::fmod(std::atan2(input.velocityY, input.velocityX) * Config::RAD2DEG + 360, 360);
-    float carAngle = std::fmod(carAngle + 360, 360);
-    float rel = velAngleDeg - carAngle;
+    float currentCarAngle = std::fmod(input.carAngle + 360, 360);
+    float rel = velAngleDeg - currentCarAngle;
     
     if (rel > 180) rel -= 360;
     if (rel < -180) rel += 360;
@@ -53,8 +53,11 @@ float Physics::CarPhysics::computeAcceleration(const Physics::Input& input, floa
     rel = std::abs(rel);
     if (rel > 90) rel = 90;
 
+    float dampingMultiplier = 1.0f;
     if(input.handbrake) dampingMultiplier = 1 + Config::handBrakeForce;
     else dampingMultiplier = 1 + Config::MaxExtraTurnSpeed * (rel / 90);//re/90 en fazla 1 // burası en fazla 1 + 4 den 5 oluyo
+
+    return functAccel;
 }
 
 float Physics::CarPhysics::computeSteer(float speed, float steeredTime, steerStatus steerDir) const
@@ -72,5 +75,6 @@ float Physics::CarPhysics::computeSpeed(float velocityX, float velocityY) const
 
 Physics::vectorVelocity Physics::CarPhysics::computeDirVelocity(float accel, float carAngle) const
 {
-    return {std::cos(carAngle), std::sin(carAngle)};
+    float angleRad = carAngle / Config::RAD2DEG;
+    return {std::cos(angleRad), std::sin(angleRad)};
 }
