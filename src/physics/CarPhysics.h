@@ -33,7 +33,7 @@ namespace Physics
         Forward = 0
     };
 
-    struct Input
+    struct PhysicsInput
     {
         float velocityX;
         float velocityY;
@@ -47,7 +47,7 @@ namespace Physics
         bool  autoGear;
     };
 
-    struct Output
+    struct PhysicsOutput
     {
         float acceleration;
         float angularVelocity;
@@ -68,13 +68,13 @@ namespace Physics
     class CarPhysics
     {
     public:
-        Output update(const Input& input, float dt);
+        PhysicsOutput update(const PhysicsInput& input, float dt);
 
     private:
         static float dampingMultiplier;
         
         Gear calculateOptGear(float speed) const;
-        float computeAcceleration(const Input& input, float speed) const;
+        float computeAcceleration(const PhysicsInput& input, float speed) const;
         float computeSteer(float speed, float steeredTime, steerStatus steerDir) const;
         float computeSpeed(float velocityX, float velocityY) const;
         vectorVelocity computeDirVelocity(float accel, float carAngle) const;
