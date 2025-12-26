@@ -4,9 +4,9 @@
 #include "../core/Utils.h"
 #include "../core/Config.h"
 
-Physics::Output Physics::CarPhysics::update(const PhysicsInput& input, float dt)
+Physics::PhysicsOutput Physics::CarPhysics::update(const PhysicsInput& input, float dt)
 {
-    Physics::Output out;
+    Physics::PhysicsOutput out;
 
     float speed = computeSpeed(input.velocityX, input.velocityY);
 
