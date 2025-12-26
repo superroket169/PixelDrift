@@ -1,0 +1,9 @@
+# doxygen outputs
+html/
+
+# Binaries
+*.o
+*.exe
+
+# temprorary files
+mySets
