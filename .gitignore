@@ -1,9 +1,21 @@
 # doxygen outputs
 html/
+latex/
 
 # Binaries
+bin/
 *.o
 *.exe
+
+# SFML libraries
+include/
+
+# helper scripts
+*.bat
+*.sh
+
+# build folder
+build/
 
 # temprorary files
 mySets
