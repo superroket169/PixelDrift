@@ -22,7 +22,7 @@ namespace
     std::unordered_map<Action, bool> prev;
 }
 
-void Input::update()
+void KeyInput::update()
 {
     prev = curr;
 
@@ -41,20 +41,6 @@ void Input::update()
     }
 }
 
-bool Input::isDown(Action action)
-{
-    return curr[action];
-}
+bool KeyInput::isDown(Action action) { return curr[action]; }
 
-bool Input::isPressed(Action action)
-{
-    return curr[action] && !prev[action];
-}
-
-/*
-plans :
-    add ability to addBinding
-    add clearing Bindings
-    For game menu
-
-*/
+bool KeyInput::isPressed(Action action) { return curr[action] && !prev[action]; }

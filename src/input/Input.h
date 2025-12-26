@@ -13,7 +13,14 @@ enum class Action
     GearDown
 };
 
-class Input 
+/**
+ * @todo Implement costumsizeble input mapping:
+ * - Add InputManager Class
+ * - save/load key mappings by json
+ * - Add default setting
+ * - Add a menu to setting for user 
+ */
+class KeyInput 
 {
 public:
     static void update();
