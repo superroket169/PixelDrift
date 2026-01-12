@@ -12,7 +12,7 @@ struct markSkid
     int maxLifeSec;
 };
 
-const std::string trueTypeFormatPath = "../trueTypeFormat/DejaVuSans-Bold.ttf";
+const std::string trueTypeFormatPath = "../assets/fonts/DejaVuSans-Bold.ttf";
 
 
 float sigmoid(float x, float mid, float y1, float y2, float k)
@@ -75,15 +75,16 @@ bool button(int x, int y, int w, int h, std::string str, sf::RenderWindow &windo
 
 int main()
 {
+    // 1080x5760
     const int windowX = 1200;
     const int windowY = 800;
     sf::RenderWindow window(sf::VideoMode(windowX, windowY), "PixelDrift");
 
     sf::Texture carTexture;
-    if(!carTexture.loadFromFile("../assets/carTexture.png")) std::cout << "file cant opened\n";
+    if(!carTexture.loadFromFile("../assets/cars/default/DefaultCarTexture.png")) std::cout << "file cant opened\n";
 
     sf::Texture bgTexture;
-    if (!bgTexture.loadFromFile("../assets/backGround2.png")) std::cout << "background file cant opened\n";
+    if (!bgTexture.loadFromFile("../assets/maps/default/backGround2.png")) std::cout << "background file cant opened\n";
     sf::Sprite backGround(bgTexture);
     backGround.scale(12, 12);
     backGround.setPosition(-1300, -600);
@@ -259,8 +260,25 @@ int main()
     window.clear(sf::Color(0, 200, 200));
     window.display();
 
+    sf::Joystick::update();
+    bool hasJoystick = sf::Joystick::isConnected(0);
+    if (hasJoystick) std::cout << "Direksiyon/Gamepad Baglandi: " << sf::Joystick::getIdentification(0).name.toAnsiString() << "\n";
+    else std::cout << "steerer cannot found, klavye aktif?.\n";
+
     while (window.isOpen())
     {
+        sf::Joystick::update(); 
+
+        // test kısmı
+        if(test.getElapsedTime().asSeconds() > 0.5)
+        {
+             std::cout << "X: " << sf::Joystick::getAxisPosition(0, sf::Joystick::X) 
+                       << " Y: " << sf::Joystick::getAxisPosition(0, sf::Joystick::Y) 
+                       << " Z: " << sf::Joystick::getAxisPosition(0, sf::Joystick::Z) 
+                       << " R: " << sf::Joystick::getAxisPosition(0, sf::Joystick::R) << "\n";
+             test.restart();
+        }
+        
         if(inMenu)//menu:
         {
             window.clear(sf::Color(0, 200, 200));
@@ -326,7 +344,7 @@ int main()
             }
         }
 
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::E) && handbrakeTimer.getElapsedTime().asMilliseconds() > 300) // handbrake code
+        if ((sf::Keyboard::isKeyPressed(sf::Keyboard::E)) && handbrakeTimer.getElapsedTime().asMilliseconds() > 300) 
         {
             handbrake = handbrake ? 0 : 1;
             handbrakeTimer.restart();
@@ -379,15 +397,27 @@ int main()
         }
 
         {//steering code:
-            float angularVel = 0;// theres a bug but ı wont fix it
+            float angularVel = 0;
 
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-                angularVel = -turnSpeed * pow(speed, 1.1) * SteerWTimer.getElapsedTime().asMilliseconds();
-                
-            else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-                angularVel = turnSpeed * pow(speed, 1.1) * SteerWTimer.getElapsedTime().asMilliseconds();
+            float wheelInput = sf::Joystick::getAxisPosition(0, sf::Joystick::X);
+            // bool usingWheel = std::abs(wheelInput) > 5.0f; // Deadzone (ölü bölge)
 
-            else SteerWTimer.restart();
+            if (1)
+            {
+                // Direksiyon takılıysa açıya göre dönme hızı
+                float wheelSens = 20.0f; 
+                angularVel = (wheelInput / 100.0f) * turnSpeed * pow(speed, 1.1) * wheelSens * 100.0f; 
+            }
+            // else
+            {
+                // Eski Klavye Kodu
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+                    angularVel = -turnSpeed * pow(speed, 1.1) * SteerWTimer.getElapsedTime().asMilliseconds();
+                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+                    angularVel = turnSpeed * pow(speed, 1.1) * SteerWTimer.getElapsedTime().asMilliseconds();
+                else 
+                    SteerWTimer.restart();
+            }
 
             if(abs(angularVel) > maxTurnSpeed) angularVel = maxTurnSpeed * ((angularVel > 0) ? 1 : -1);
 
@@ -399,16 +429,39 @@ int main()
         }
 
         {//accelerator code:
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+            float gasPedalRaw = sf::Joystick::getAxisPosition(0, sf::Joystick::Y); 
+            float gasAmount = 0.0f;
+            
+            // if (gasPedalRaw > -95.0f) 
+            // {
+            //     gasAmount = (gasPedalRaw + 100.0f) / 200.0f; // 0.0 ile 1.0 arasına çek
+            // }
+
+            // Klavye (W/Up) veya Pedal basılıysa
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W) || gasAmount > 0.1f)
             {
-                if(gear == 0) functAccel = accel;
-                else functAccel = sigmoid(speed, gearMaxes[gear] / 3 , gearOneMaxVel * gearOneMaxVel/gearMaxVel, accel, 0.012);
+                // Klavye ise tam gaz (1.0), Pedal ise ne kadar basıldıysa (gasAmount)
+                float inputMultiplier = (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W)) ? 1.0f : (gasPedalRaw / 100);
+
+                if(gear == 0) 
+                    functAccel = accel * inputMultiplier;
+                else 
+                    functAccel = sigmoid(speed, gearMaxes[gear] / 3 , gearOneMaxVel * gearOneMaxVel/gearMaxVel, accel, 0.012) * inputMultiplier;
+                
                 velX += dirX * functAccel * dt;
                 velY += dirY * functAccel * dt;
             }
         }
 
         {//damping and brakes code:
+
+            float brakePedalRaw = sf::Joystick::getAxisPosition(0, sf::Joystick::R); // Çalışmazsa Z dene
+            float brakeAmount = 0.0f;
+
+            if (brakePedalRaw > -95.0f) 
+            {
+                brakeAmount = (brakePedalRaw + 100.0f) / 200.0f;
+            }
 
             if(handbrake)
             {
@@ -438,12 +491,16 @@ int main()
             if(handbrake) dampingMultiplier = 1 + handBrakeForce;
             else dampingMultiplier = 1 + MaxExtra * (rel / 90);//re/90 en fazla 1 // burası en fazla 1 + 4 den 5 oluyo
 
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::S) || brakeAmount > 0.1f)
             {
+                float currentBrakeForce = brakeForce;
+                // Pedal kullanılıyorsa kuvveti ayarla
+                if(brakeAmount > 0.1f) currentBrakeForce = brakeForce * brakeAmount;
+
                 if (speed > 0.0f)
                 {
-                    velX -= velX * damping * dampingMultiplier * dt * brakeForce;
-                    velY -= velY * damping * dampingMultiplier * dt * brakeForce;
+                    velX -= velX * damping * dampingMultiplier * dt * currentBrakeForce;
+                    velY -= velY * damping * dampingMultiplier * dt * currentBrakeForce;
                 }
             }
             else
